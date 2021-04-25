@@ -7,6 +7,7 @@ Single-cell resolution technologies warrant computational methods that capture c
 * Mac OS X
 * R Ver. 3.3.3 
 * Following R packages: dplyr 0.7.4
+dbplyr (UNSPECIFIED VERSION)
 magrittr 1.5
 foreach 1.4.4
 stringr 1.2.0

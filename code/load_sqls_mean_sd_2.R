@@ -6,19 +6,18 @@ library(stringr)
 library(readr)
 library(doParallel)
 
-profile.plate.traditional.2 <- function(pl, project.name, batch.name, operation, nrm.column, nrm.value, cores = 2, feat.list = NULL) {
+profile.plate.traditional.2 <- function(pl, project.name, batch.name, operation, nrm.column, nrm.value, out.path, in.path = NULL, in.type="sqlite", cores = 2, feat.list = NULL) {
   
   p1 <- str_split(operation, "\\+")[[1]][1]
   p2 <- str_split(operation, "\\+")[[1]][2]
   
-  if (file.exists(paste0("../backend/", batch.name, "/", pl, "/", pl, "_normalized_", p1, "_", p2, ".csv"))) {
+  if (file.exists(paste0(out.path, "/", pl, "_normalized_", p1, "_", p2, ".csv"))) {
     return(NULL)
   }
   
   doParallel::registerDoParallel(cores = cores)
   
-  sql.path <- paste0("../backend/", batch.name, "/", pl, "/", pl, ".sqlite")
-  out.path <- paste0("../backend/", batch.name, "/", pl)
+  sql.path <- ifelse(is.null(in.path), paste0("../backend/", batch.name, "/", pl, "/", pl, ".sqlite"), paste0(in.path, "/", pl, "/", pl, ".sqlite"))
   out.file <- paste0(out.path, "/", pl, ".csv")
   
   if (!file.exists(sql.path)) {
@@ -34,7 +33,9 @@ profile.plate.traditional.2 <- function(pl, project.name, batch.name, operation,
                             sql.path))
   }
   
-  if (!file.exists(paste0("../input/", pl, "_normalized.csv"))) {
+  norm.path = ifelse(is.null(in.path) , paste0("../input/", pl, "_normalized.csv"), paste0(in.path, "/", pl, "/", pl, "_normalized.csv"))
+  
+  if (!file.exists(norm.path)) {
     system(command = paste0("aws s3 cp 's3://cellpainting-datasets/",
                             project.name, 
                             "/workspace/backend/",
@@ -43,14 +44,10 @@ profile.plate.traditional.2 <- function(pl, project.name, batch.name, operation,
                             pl, 
                             "/", 
                             pl, 
-                            "_normalized.csv' ../input/",
-                            pl,
-                            "_normalized.csv"))
+                            "_normalized.csv' ", norm.path))
   }
   
-  prf <- readr::read_csv(paste0("../input/",
-                                pl,
-                                "_normalized.csv"))
+  prf <- readr::read_csv(norm.path)
   
   sites.all <- unique(prf$Metadata_Well)
   
@@ -68,15 +65,27 @@ profile.plate.traditional.2 <- function(pl, project.name, batch.name, operation,
   image_object_join_columns <- c("TableNumber", "ImageNumber")
   strata <- c("Image_Metadata_Plate", "Image_Metadata_Well")
   
-  image <- dplyr::tbl(src = db, "image") %>%
-    dplyr::select(c(image_object_join_columns, strata))
-  cells <- dplyr::tbl(src = db, "cells")
-  cytoplasm <- dplyr::tbl(src = db, "cytoplasm")
-  nuclei <- dplyr::tbl(src = db, "nuclei")
+  if(in.type == "sqlite"){
+    image <- dplyr::tbl(src = db, "image") %>%
+      dplyr::select(all_of(c(image_object_join_columns, strata)))
+    cells <- dplyr::tbl(src = db, "cells")
+    cytoplasm <- dplyr::tbl(src = db, "cytoplasm")
+    nuclei <- dplyr::tbl(src = db, "nuclei")
+  }else{
+    root.path = paste0(in.path, "/", pl, "/")
+    image <- read.csv(paste0(root.path, "Image.csv")) %>%
+      dplyr::select(all_of(c(image_object_join_columns, strata)))
+    cells <- read.csv(paste0(root.path, "Cells.csv"))
+    cytoplasm <- read.csv(paste0(root.path, "Cytoplasm.csv"))
+    nuclei <- read.csv(paste0(root.path, "Nuclei.csv"))
+  }
   
   image.coll <- image %>%
-    select(Image_Metadata_Well, ImageNumber, TableNumber) %>%
-    dplyr::collect()
+    dplyr::select(Image_Metadata_Well, ImageNumber, TableNumber)
+  if(in.type == "sqlite")
+  {
+    image.coll <- image.coll %>% dplyr::collect()
+  }
   
   t <- proc.time()
   
@@ -89,22 +98,26 @@ profile.plate.traditional.2 <- function(pl, project.name, batch.name, operation,
     saveRDS(sites, paste0("../tmp_trad/", sites, ".rds"))  
     
     image.sub <- image.coll %>% 
-      filter(Image_Metadata_Well == sites) 
+      dplyr::filter(Image_Metadata_Well == sites) 
     
     append_operation_tag <- function(s) stringr::str_c(s, operation, sep = "_")
     
     dt.sub <- foreach (i = 1:NROW(image.sub), .combine = rbind) %dopar% {
       cells.sub <- cells %>% 
-        filter(ImageNumber == image.sub$ImageNumber[i] & TableNumber == image.sub$TableNumber[i]) %>%
-        dplyr::collect()
+        dplyr::filter(ImageNumber == !!image.sub$ImageNumber[i] & TableNumber == !!image.sub$TableNumber[i])
       
       cytoplasm.sub <- cytoplasm %>% 
-        filter(ImageNumber == image.sub$ImageNumber[i] & TableNumber == image.sub$TableNumber[i]) %>%
-        dplyr::collect()
+        dplyr::filter(ImageNumber == !!image.sub$ImageNumber[i] & TableNumber == !!image.sub$TableNumber[i])
       
       nuclei.sub <- nuclei %>% 
-        filter(ImageNumber == image.sub$ImageNumber[i] & TableNumber == image.sub$TableNumber[i]) %>%
-        dplyr::collect()
+        dplyr::filter(ImageNumber == !!image.sub$ImageNumber[i] & TableNumber == !!image.sub$TableNumber[i])
+      
+      if(in.type == "sqlite")
+      {
+        cells.sub <- cells.sub %>% dplyr::collect()
+        cytoplasm.sub <- cytoplasm.sub %>% dplyr::collect()
+        nuclei.sub <- nuclei.sub %>% dplyr::collect()
+      }
       
       dt <- cells.sub %>%
         dplyr::inner_join(cytoplasm.sub, by = "ObjectNumber") %>%
@@ -125,7 +138,6 @@ profile.plate.traditional.2 <- function(pl, project.name, batch.name, operation,
     
     profile <- cytominer::aggregate(population = dt.sub, strata = c("Image_Metadata_Well"), variables = variables, operation = operation)
     profile <- cbind(profile, data.frame(Metadata_Plate = pl, Metadata_Well = sites))
-    profile
   }
   t2 <- proc.time()
   
@@ -135,19 +147,21 @@ profile.plate.traditional.2 <- function(pl, project.name, batch.name, operation,
   cov.metadata <- setdiff(colnames(profiles), cov.variables)
   
   dmso.ids <- prf %>% 
-    filter((!!rlang::sym(nrm.column)) == nrm.value) %>%
+    dplyr::filter((!!rlang::sym(nrm.column)) == nrm.value) %>%
     select(Metadata_Plate, Metadata_Well)
   
-  samples.nrm <- profiles %>% 
-    mutate(Metadata_Plate = as.character(Metadata_Plate)) %>%
-    semi_join(dmso.ids %>%
-                mutate(Metadata_Plate = as.character(Metadata_Plate)), 
-              by = c("Metadata_Plate", "Metadata_Well"))
-  
-  mn <- apply(samples.nrm %>% select(one_of(cov.variables)), 2, function(x) mean(x, na.rm = T))
-  sdv <- apply(samples.nrm %>% select(one_of(cov.variables)), 2, function(x) sd(x, na.rm = T))
+  # samples.nrm <- profiles %>% 
+  #   mutate(Metadata_Plate = as.character(Metadata_Plate)) %>%
+  #   semi_join(dmso.ids %>%
+  #               mutate(Metadata_Plate = as.character(Metadata_Plate)), 
+  #             by = c("Metadata_Plate", "Metadata_Well"))
+  # 
+  # mn <- apply(samples.nrm %>% select(one_of(cov.variables)), 2, function(x) mean(x, na.rm = T))
+  # sdv <- apply(samples.nrm %>% select(one_of(cov.variables)), 2, function(x) sd(x, na.rm = T))
   
   dt <- profiles[, cov.variables]
+  mn <- apply(dt, 2, function(x) mean(x, na.rm=T))
+  sdv <- apply(dt, 2, function(x) sd(x, na.rm=T))
   
   dt.nrm <- scale(dt, center = mn, scale = sdv)
   
@@ -163,7 +177,10 @@ profile.plate.traditional.2 <- function(pl, project.name, batch.name, operation,
   p1 <- str_split(operation, "\\+")[[1]][1]
   p2 <- str_split(operation, "\\+")[[1]][2]
   
-  readr::write_csv(profiles.nrm, paste0("../backend/", batch.name, "/", pl, "/", pl, "_normalized_", p1, "_", p2, ".csv"))
+  readr::write_csv(profiles.nrm, paste0(out.path, "/", pl, "_normalized_", p1, "_", p2, ".csv"))
   
-  system(paste0(paste0("rm ", sql.path)))
+  if(is.null(in.path))
+  {
+    system(paste0(paste0("rm ", sql.path)))
+  }
 }
