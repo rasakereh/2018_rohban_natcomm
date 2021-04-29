@@ -66,9 +66,6 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
   if(in.type == "sqlite"){
     image <- dplyr::tbl(src = db, "image") %>%
       dplyr::select(all_of(c(image_object_join_columns, strata)))
-    cells <- dplyr::tbl(src = db, "cells")
-    cytoplasm <- dplyr::tbl(src = db, "cytoplasm")
-    nuclei <- dplyr::tbl(src = db, "nuclei")
   }else{
     root.path = paste0(in.path, "/", pl, "/")
     image <- read.csv(paste0(root.path, "Image.csv")) %>%
@@ -97,6 +94,16 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     append_operation_tag <- function(s) stringr::str_c(s, operation, sep = "_")
     
     dt.sub <- foreach (i = 1:NROW(image.sub), .combine = rbind) %dopar% {
+      if(in.type == "sqlite"){
+        dbPar <- DBI::dbConnect(RSQLite::SQLite(), sqlite_file)
+        RSQLite::initExtension(dbPar)
+        image <- dplyr::tbl(src = dbPar, "Image") %>%
+          dplyr::select(all_of(c(image_object_join_columns, strata)))
+        cells <- dplyr::tbl(src = dbPar, "Cells")
+        cytoplasm <- dplyr::tbl(src = dbPar, "Cytoplasm")
+        nuclei <- dplyr::tbl(src = dbPar, "Nuclei")
+      }
+
       cells.sub <- cells %>% 
         dplyr::filter(ImageNumber == !!image.sub$ImageNumber[i] & TableNumber == !!image.sub$TableNumber[i])
       
@@ -111,6 +118,7 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
         cells.sub <- cells.sub %>% dplyr::collect()
         cytoplasm.sub <- cytoplasm.sub %>% dplyr::collect()
         nuclei.sub <- nuclei.sub %>% dplyr::collect()
+        DBI::dbDisconnect(dbPar)
       }
       
       dt <- cells.sub %>%
