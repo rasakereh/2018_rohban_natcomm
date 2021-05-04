@@ -11,27 +11,6 @@ library(infotheo)
 dt.saved <- F
 dt.sub.saved <- F
 
-get.flat.dist <- function(df)
-{
-  dists <- pdist(df, metric='euclidean')
-  dists <- dists[upper.tri(dists)]
-  dists[is.na(dists)] <- 0
-  dists
-}
-
-randomized_pdist <- function(df, portion=.1)
-{
-  if(is.null(dim(df)))
-  {
-    df <- df %>% as.data.frame
-  }
-  row.count <- nrow(df)
-  sample.size <- as.integer(row.count * portion)
-  sample.cnt <- as.integer(1 / portion)
-  samples <- replicate(sample.cnt, get.flat.dist(df[sample(row.count, sample.size),])) %>% t
-  apply(samples, 2, mean)
-}
-
 profile.plate.location <- function(pl, project.name, batch.name, n.components = 3000, rand.density = 0.1, correlation, out.path, in.path = NULL, in.type="sqlite", cores = 4, nrm.column = "Metadata_broad_sample", nrm.value = "DMSO", feat.list = NULL) {
     
   doParallel::registerDoParallel(cores = cores)
@@ -156,10 +135,14 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     pos.features <- c('Cells_AreaShape_Center_X', 'Cells_AreaShape_Center_Y')
     features <- setdiff(all.variables, pos.features)
     features <- features[seq(1, length(features), 10)]
-    cell.dists <- randomized_pdist(dt.sub[pos.features])
+    cell.dists <- pdist(dt.sub[pos.features], metric='euclidean')
+    cell.dists <- cell.dists[upper.tri(cell.dists)]
+    cell.dists[is.na(cell.dists)] <- 0
     discrete.dists <- discretize(cell.dists)
     location.info <- apply(dt.sub[features], 2, function(col){
-      cell.diff <- randomized_pdist(as.numeric(col))
+      cell.diff <- pdist(as.numeric(col), metric='euclidean')
+      cell.diff <- cell.diff[upper.tri(cell.diff)]
+      cell.diff[is.na(cell.diff)] <- 0
       if(correlation == 'pearsonr')
       {
         pearson.cor <- cor(cell.dists, cell.diff)
