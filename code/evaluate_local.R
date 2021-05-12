@@ -89,7 +89,7 @@ read.and.summarize <- function(profile.type) {
         init <- list.dirs("../backend", recursive = F)
         fl.name <- paste0(init, "/", pl, "/", pl, "_normalized_median_mad.csv")
       }else{
-        fl.name <- paste0(profile_dir, pl, "_normalized_median_mad.csv")
+        fl.name <- paste0(profile_dir, "/", pl, "_normalized_median_mad.csv")
       }
       
       if (file.exists(fl.name)) {
@@ -111,7 +111,7 @@ read.and.summarize <- function(profile.type) {
         init <- list.dirs("../backend", recursive = F)
         fl.name <- paste0(init, "/", pl, "/", pl, "_normalized_median_mad.csv")
       }else{
-        fl.name <- paste0(profile_dir, pl, "_normalized_median_mad.csv")
+        fl.name <- paste0(profile_dir, "/", pl, "_normalized_median_mad.csv")
       }
       
       if (file.exists(fl.name)) {
@@ -145,7 +145,7 @@ read.and.summarize <- function(profile.type) {
         init <- list.dirs("../backend", recursive = F)
         fl.name <- paste0(init, "/", pl, "/", pl, "_normalized_", p1, "_", p2, ".csv")
       }else{
-        fl.name <- paste0(profile_dir, pl, "_normalized_", p1, "_", p2, ".csv")
+        fl.name <- paste0(profile_dir, "/", pl, "_normalized_", p1, "_", p2, ".csv")
       }
       if (file.exists(fl.name)) {
         x <- readr::read_csv(fl.name)    
