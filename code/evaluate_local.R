@@ -126,6 +126,28 @@ read.and.summarize <- function(profile.type) {
           select(matches("Metadata_"), one_of(paste0(feat.list, "_mad")))
         feat.list.s <- paste0(feat.list, "_mad")
       }
+    } else if (profile.type == "location") {
+      pl <- str_split(fl, "_")[[1]][1]
+      if(is.null(profile_dir))
+      {
+        init <- list.dirs("../backend", recursive = F)
+        fl.name <- paste0(init, "/", pl, "/", pl, "_location.csv")
+      }else{
+        fl.name <- paste0(profile_dir, "/", pl, "_location.csv")
+      }
+      
+      if (file.exists(fl.name)) {
+        x <- readr::read_csv(fl.name)    
+      } else {
+        x <- NULL
+        warning(paste0("Plate ", pl, " is missing."))
+      }
+      
+      if (!is.null(feat.list) & ! is.null(x)) {
+        x <- x %>%
+          select(matches("Metadata_"), one_of(feat.list))
+        feat.list.s <- feat.list
+      }
     }
     else if (str_detect(profile.type, "\\+")) {
       p1 <- str_split(profile.type, "\\+")[[1]][1]  
