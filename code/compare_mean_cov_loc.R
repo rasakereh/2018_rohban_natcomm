@@ -34,11 +34,12 @@ if (genetic) {
 cr.melt.mean <- readRDS("cr_median.rds")
 cr.melt.cov <- readRDS("cr_cov.rds")
 cr.melt.mad <- readRDS("cr_mad.rds")  
-cr.melt.median.mad.2 <- readRDS("cr_median+mad.rds") 
+cr.melt.loc <- readRDS("cr_location.rds") 
 
 sigma.mean <- 0.5 
 sigma.cov <- 0.5 
 sigma.mad <- 0.5 
+sigma.loc <- 0.5 
 
 cr.mean <- cr.melt.mean %>%
   select(Var1, Var2, value) %>%
@@ -46,7 +47,7 @@ cr.mean <- cr.melt.mean %>%
   summarise(value = max(value)) %>%
   reshape2::acast("Var1 ~ Var2") 
 
-cr.median.mad.2 <- cr.melt.median.mad.2 %>%
+cr.loc <- cr.melt.loc %>%
   select(Var1, Var2, value) %>%
   group_by(Var1, Var2) %>%
   summarise(value = max(value)) %>%
@@ -66,7 +67,7 @@ cr.cov <- cr.melt.cov %>%
 
 cr.mean <- sim_normalize(cr.mean) 
 cr.cov <- sim_normalize(cr.cov) 
-cr.median.mad.2 <- sim_normalize(cr.median.mad.2) 
+cr.loc <- sim_normalize(cr.loc) 
 cr.mad <- sim_normalize(cr.mad) 
 
 d <- apply(cr.mean, 1, function(x) !(sum(is.na(x)) >= (NROW(cr.mean) -1 )))
@@ -78,14 +79,17 @@ cr.cov <- cr.cov[d, d]
 d <- apply(cr.mad, 1, function(x) !(sum(is.na(x)) >= (NROW(cr.mad) -1 )))
 cr.mad <- cr.mad[d, d]
 
-cm.rn <- setdiff(intersect(intersect(rownames(cr.mad), rownames(cr.mean)), intersect(rownames(cr.cov), rownames(cr.median.mad.2))), NA)
+d <- apply(cr.loc, 1, function(x) !(sum(is.na(x)) >= (NROW(cr.loc) -1 )))
+cr.loc <- cr.loc[d, d]
+
+cm.rn <- setdiff(intersect(intersect(rownames(cr.mad), rownames(cr.mean)), intersect(rownames(cr.cov), rownames(cr.loc))), NA)
 cr.mean <- cr.mean[cm.rn, cm.rn]
 cr.cov <- cr.cov[cm.rn, cm.rn]
 cr.mad <- cr.mad[cm.rn, cm.rn]
-cr.median.mad.2 <- cr.median.mad.2[cm.rn, cm.rn]
+cr.loc <- cr.loc[cm.rn, cm.rn]
   
 cr.mean[is.na(cr.mean)] <- 0
-cr.median.mad.2[is.na(cr.median.mad.2)] <- 0
+cr.loc[is.na(cr.loc)] <- 0
 cr.mad[is.na(cr.mad)] <- 0
 cr.cov[is.na(cr.cov)] <- 0
 
@@ -96,6 +100,15 @@ af.snf <- SNFtool::SNF(list(af.1, af.2, af.3), K = k.snf, t = round(3/2 * t))
 rownames(af.snf) <- rownames(af.1)
 colnames(af.snf) <- colnames(af.1)
 cr.median.mad.cov <- af.snf
+
+af.1 <- SNFtool::affinityMatrix(diff = 1 - cr.mean, K = k.snf, sigma = sigma.mean)
+af.2 <- SNFtool::affinityMatrix(diff = 1 - cr.mad, K = k.snf, sigma = sigma.mad)
+af.3 <- SNFtool::affinityMatrix(diff = 1 - cr.cov, K = k.snf, sigma = sigma.cov)
+af.4 <- SNFtool::affinityMatrix(diff = 1 - cr.loc, K = k.snf, sigma = sigma.loc)
+af.snf <- SNFtool::SNF(list(af.1, af.2, af.3, af.4), K = k.snf, t = round(3/2 * t))
+rownames(af.snf) <- rownames(af.1)
+colnames(af.snf) <- colnames(af.1)
+cr.median.mad.cov.loc <- af.snf
 
 metadata <- cr.melt.mean %>%
   select(Var1, Metadata_moa.x, Metadata_Plate_Map_Name.x) %>%
@@ -167,6 +180,7 @@ if (enrichment.based.classification) {
   }
 } else {
   d.median.mad.cov <- cmpd_knn_classification(cr.median.mad.cov, metadata, k, not.same.batch = not.same.batch) 
+  d.median.mad.cov.loc <- cmpd_knn_classification(cr.median.mad.cov.loc, metadata, k, not.same.batch = not.same.batch) 
   
   if (length(k) == 1) {
     d.mean %>% NROW %>% print
@@ -193,12 +207,13 @@ if (enrichment.based.classification) {
       print
   } else {
     l.median.mad.cov <- lapply(d.median.mad.cov[3, ], function(x) sum(x)) 
+    l.median.mad.cov.loc <- lapply(d.median.mad.cov.loc[3, ], function(x) sum(x)) 
     
-    D <- data.frame(method = "median", k = k, tp = (unlist(l.mean)))
+    D <- data.frame(method = "median+mad+cov.+loc. (SNF)", k = k, tp = (unlist(l.median.mad.cov.loc)))
     D <- rbind(D, 
                data.frame(method = "median+mad+cov. (SNF)", k = k, tp = (unlist(l.median.mad.cov))))
     
-    lvls <- c("median+mad+cov. (SNF)", "median+mad (SNF)", "median+median (SNF)", "median+mad (concatenated)", "median")
+    lvls <- c("median+mad+cov. (SNF)", "median+mad+cov.+loc. (SNF)")
     D <- D %>% mutate(method = factor(method, levels = lvls))
     
     g <- ggplot(D, aes(x = k, y = tp, color = method, order = as.character(method))) + 
@@ -221,22 +236,24 @@ top.prec <- c(seq(from = 0.98, to = 0.997, by = 0.002))
 enrichment_top_conn <- Vectorize(enrichment_top_conn, vectorize.args = "top.perc")
 
 sm.median.mad.cov <- perpare_sm(sm = cr.median.mad.cov, metadata = metadata)
+sm.median.mad.cov.loc <- perpare_sm(sm = cr.median.mad.cov.loc, metadata = metadata)
 
 saveRDS(sm.median.mad.cov, "sm_median_mad_cov.rds")
+saveRDS(sm.median.mad.cov.loc, "sm_median_mad_cov_loc.rds")
 
 median.mad.cov.res <- enrichment_top_conn(sm = sm.median.mad.cov, metadata = metadata, top.perc = top.prec, not.same.batch = not.same.batch)
+median.mad.cov.loc.res <- enrichment_top_conn(sm = sm.median.mad.cov.loc, metadata = metadata, top.perc = top.prec, not.same.batch = not.same.batch)
 
 median.mad.cov.res <- median.mad.cov.res[3,] %>% unlist %>% unname()
+median.mad.cov.loc.res <- median.mad.cov.loc.res[3,] %>% unlist %>% unname()
 
 D5 <- data.frame(top.prec = top.prec * 100, odds.ratio = median.mad.cov.res, method = "median+mad+cov. (SNF)")
+D6 <- data.frame(top.prec = top.prec * 100, odds.ratio = median.mad.cov.loc.res, method = "median+mad+cov.+loc. (SNF)")
 
-D <- rbind(D1, D2)
-D <- rbind(D, D3)
-D <- rbind(D, D4)
-D <- rbind(D, D5)
+D <- rbind(D5, D6)
 
 #lvls <- sort(unique(as.character(D$method)))
-lvls <- c("median+mad+cov. (SNF)", "median+mad (SNF)", "median+median (SNF)", "median+mad (concatenated)", "median")
+lvls <- c("median+mad+cov. (SNF)", "median+mad+cov.+loc. (SNF)")
 D <- D %>% mutate(method = factor(method, levels = lvls))
 D <- D %>% mutate(top.prec = 100 - top.prec)
 
