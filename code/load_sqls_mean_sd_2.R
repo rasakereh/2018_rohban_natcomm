@@ -141,8 +141,12 @@ profile.plate.traditional.2 <- function(pl, project.name, batch.name, operation,
     
     dt.sub <- dt.sub %>%
       select(one_of(c(metadata, variables)))
-    
-    dt.sub[, variables] <- apply(dt.sub[, variables], 2, function(x) as.numeric(x))
+
+    if(nrow(dt.sub)==1){
+      dt.sub[, variables] <- as.list(apply(dt.sub[, variables], 2, function(x) as.numeric(x)))
+    }else{
+      dt.sub[, variables] <- apply(dt.sub[, variables], 2, function(x) as.numeric(x))
+    }
     
     profile <- cytominer::aggregate(population = dt.sub, strata = c("Image_Metadata_Well"), variables = variables, operation = operation)
     profile <- cbind(profile, data.frame(Metadata_Plate = pl, Metadata_Well = sites))
