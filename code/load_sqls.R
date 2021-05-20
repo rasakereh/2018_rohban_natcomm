@@ -133,7 +133,11 @@ profile.plate <- function(pl, project.name, batch.name, n.components = 3000, ran
     dt.sub <- dt.sub %>%
       select(one_of(c(metadata, variables)))
     
-    dt.sub[, variables] <- apply(dt.sub[, variables], 2, function(x) as.numeric(x))
+    if(nrow(dt.sub)==1){
+      dt.sub[, variables] <- as.list(apply(dt.sub[, variables], 2, function(x) as.numeric(x)))
+    }else{
+      dt.sub[, variables] <- apply(dt.sub[, variables], 2, function(x) as.numeric(x))
+    }
     
     profile <- cytominer::covariance(population = dt.sub, variables = variables)
     profile <- cbind(profile, data.frame(Metadata_Plate = pl, Metadata_Well = sites))

@@ -187,8 +187,9 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
   dt <- profiles[, cov.variables]
   mn <- apply(dt, 2, function(x) mean(x, na.rm=T))
   sdv <- apply(dt, 2, function(x) sd(x, na.rm=T))
-  
+  print(paste("here pre normalizing, sdv is:", as.character(sdv)))
   dt.nrm <- scale(dt, center = mn, scale = sdv)
+  print("normalized")
   
   profiles.nrm <- cbind(dt.nrm, profiles[, cov.metadata])
   
