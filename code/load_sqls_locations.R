@@ -86,7 +86,7 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
   
   profiles <- foreach (sites = sites.all, .combine = rbind) %do% {
     
-    saveRDS(sites, paste0("../tmp_trad/", sites, ".rds"))  
+    #saveRDS(sites, paste0("../tmp_trad/", sites, ".rds"))  
     
     image.sub <- image.coll %>% 
       dplyr::filter(Image_Metadata_Well == sites) 
@@ -131,14 +131,25 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     all.variables <- colnames(dt.sub)
     all.variables <- all.variables[which(str_detect(all.variables, "Cells") | str_detect(all.variables, "Cytoplasm") | str_detect(all.variables, "Nuclei"))]
     metadata <- setdiff(colnames(dt.sub), all.variables)
-    
+   
+    if(nrow(dt.sub)==1){
+      dt.sub[, variables] <- as.list(apply(dt.sub[, variables], 2, function(x) as.numeric(x)))
+    }else{
+      dt.sub[, variables] <- apply(dt.sub[, variables], 2, function(x) as.numeric(x))
+    }
+
     pos.features <- c('Cells_AreaShape_Center_X', 'Cells_AreaShape_Center_Y')
     features <- setdiff(all.variables, pos.features)
     cell.dists <- pdist(dt.sub[pos.features], metric='euclidean')
     cell.dists <- cell.dists[upper.tri(cell.dists)]
     cell.dists[is.na(cell.dists)] <- 0
-    discrete.dists <- discretize(cell.dists)
+    if(length(cell.dists) != 0){
+      discrete.dists <- discretize(cell.dists)
+    }
     location.info <- apply(dt.sub[features], 2, function(col){
+      if(length(col) == 0){
+        retutn(0)
+      }
       cell.diff <- pdist(as.numeric(col), metric='euclidean')
       cell.diff <- cell.diff[upper.tri(cell.diff)]
       cell.diff[is.na(cell.diff)] <- 0
@@ -161,8 +172,6 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     location.info <- location.info %>%
       select(one_of(c(metadata, variables)))
     
-    # dt.sub[, variables] <- apply(dt.sub[, variables], 2, function(x) as.numeric(x))
-    
     # if(!(dt.sub.saved))
     # {
     #   write.csv(dt.sub, '../dt_sub.csv')
@@ -172,8 +181,10 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     
     profile <- location.info
     profile <- cbind(profile, data.frame(Metadata_Plate = pl, Metadata_Well = sites))
+    print("stepped...")
   }
   t2 <- proc.time()
+  print("profiles formed")
   
   cov.variables <- colnames(profiles)
   cov.variables <- cov.variables[which(str_detect(cov.variables, "Cells_") | str_detect(cov.variables, "Cytoplasm_") | str_detect(cov.variables, "Nuclei_"))]

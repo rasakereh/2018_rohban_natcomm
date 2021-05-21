@@ -83,7 +83,7 @@ profile.plate <- function(pl, project.name, batch.name, n.components = 3000, ran
   
   profiles <- foreach (sites = sites.all, .combine = rbind) %do% {
     
-    saveRDS(sites, paste0("../tmp_trad/", sites, ".rds"))  
+    #saveRDS(sites, paste0("../tmp_trad/", sites, ".rds"))  
     
     image.sub <- image.coll %>% 
       dplyr::filter(Image_Metadata_Well == sites) 
