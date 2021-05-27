@@ -138,15 +138,16 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
       dt.sub[, variables] <- apply(dt.sub[, variables], 2, function(x) as.numeric(x))
     }
 
+    row_slice = seq(1, nrow(dt.sub), 1)
     pos.features <- c('Cells_AreaShape_Center_X', 'Cells_AreaShape_Center_Y')
     features <- setdiff(all.variables, pos.features)
-    cell.dists <- pdist(dt.sub[pos.features], metric='euclidean')
+    cell.dists <- pdist(dt.sub[row_slice, pos.features], metric='euclidean')
     cell.dists <- cell.dists[upper.tri(cell.dists)]
     cell.dists[is.na(cell.dists)] <- 0
     if(length(cell.dists) != 0){
       discrete.dists <- discretize(cell.dists)
     }
-    location.info <- apply(dt.sub[features], 2, function(col){
+    location.info <- apply(dt.sub[row_slice, features], 2, function(col){
       if(length(col) == 0){
         retutn(0)
       }
@@ -178,10 +179,9 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     #   write.csv(location.info, '../location_info.csv')
     #   dt.sub.saved <<- TRUE
     # }
-    
+    print("stepped")
     profile <- location.info
     profile <- cbind(profile, data.frame(Metadata_Plate = pl, Metadata_Well = sites))
-    print("stepped...")
   }
   t2 <- proc.time()
   print("profiles formed")
@@ -198,7 +198,8 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
   dt <- profiles[, cov.variables]
   mn <- apply(dt, 2, function(x) mean(x, na.rm=T))
   sdv <- apply(dt, 2, function(x) sd(x, na.rm=T))
-  print(paste("here pre normalizing, sdv is:", as.character(sdv)))
+  print("here pre normalizing, sdv is:")
+  print(sdv)
   dt.nrm <- scale(dt, center = mn, scale = sdv)
   print("normalized")
   
