@@ -316,7 +316,7 @@ D6 <- data.frame(top.prec = top.prec * 100, odds.ratio = median.mad.cov.loc.res,
 D7 <- data.frame(top.prec = top.prec * 100, odds.ratio = median.loc.res, method = "median+loc. (SNF)")
 D8 <- data.frame(top.prec = top.prec * 100, odds.ratio = median.mad.loc.res, method = "median+mad+loc. (SNF)")
 D9 <- data.frame(top.prec = top.prec * 100, odds.ratio = median.cov.loc.res, method = "median+cov.+loc. (SNF)")
-D10 <- data.frame(top.prec = top.prec * 100, odds.ratio = median.mad.cov.loc.w.res, method = "median+mad+cov.+loc. (SNF)")
+D10 <- data.frame(top.prec = top.prec * 100, odds.ratio = median.mad.cov.loc.w.res, method = "median+mad+cov.+loc. weighted (SNF)")
 
 D <- rbind(D5, D6, D7, D8, D9, D10)
 

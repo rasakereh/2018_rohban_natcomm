@@ -132,42 +132,33 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     all.variables <- all.variables[which(str_detect(all.variables, "Cells") | str_detect(all.variables, "Cytoplasm") | str_detect(all.variables, "Nuclei"))]
     metadata <- setdiff(colnames(dt.sub), all.variables)
    
-    if(nrow(dt.sub)==1){
+    cell.count = nrow(dt.sub)
+    nth.topn = as.integer(cell.count**.5)
+    
+    if(cell.count==1){
       dt.sub[, variables] <- as.list(apply(dt.sub[, variables], 2, function(x) as.numeric(x)))
     }else{
       dt.sub[, variables] <- apply(dt.sub[, variables], 2, function(x) as.numeric(x))
     }
-
-    row_slice = seq(1, nrow(dt.sub), 1)
+    
     pos.features <- c('Cells_AreaShape_Center_X', 'Cells_AreaShape_Center_Y')
     features <- setdiff(all.variables, pos.features)
-    cell.dists <- pdist(dt.sub[row_slice, pos.features], metric='euclidean')
-    cell.dists <- cell.dists[upper.tri(cell.dists)]
-    cell.dists[is.na(cell.dists)] <- 0
-    if(length(cell.dists) != 0){
-      discrete.dists <- discretize(cell.dists)
-    }
-    location.info <- apply(dt.sub[row_slice, features], 2, function(col){
-      if(length(col) == 0){
-        retutn(0)
-      }
-      cell.diff <- pdist(as.numeric(col), metric='euclidean')
-      cell.diff <- cell.diff[upper.tri(cell.diff)]
-      cell.diff[is.na(cell.diff)] <- 0
-      if(correlation == 'pearsonr')
-      {
-        pearson.cor <- cor(cell.dists, cell.diff)
-        if(is.na(pearson.cor))
-        {
-          pearson.cor <- 0
-        }
-        
-        return(pearson.cor)
-      }
-      discrete.diffs <- discretize(cell.diff)
-      mutinformation(discrete.dists, discrete.diffs)
-    }) %>% t %>% as.data.frame
-
+    cell.dists <- pdist(dt.sub[pos.features], metric='euclidean')
+    threshold <- cell.dists %>% apply(2, function(col.data){
+      if(length(col.data[col.data!=0]) == 0) return(0)
+      nth.index = (col.data[col.data!=0] %>% topn(nth.topn, decreasing=F))[nth.topn]
+      col.data[col.data!=0][nth.index]
+    })
+    
+    indices <- which(0 < cell.dists & cell.dists < threshold)
+    valid.rows <- ((indices-1) %/% cell.count) + 1
+    valid.cols <- ((indices-1) %% cell.count) + 1
+    cell.dists <- cell.dists[indices]
+    
+    diff = abs(dt.sub[valid.rows,features] - dt.sub[valid.cols,features])
+    
+    location.info <- cor(diff, cell.dists) %>% abs() %>% t() %>% as.data.frame()
+    location.info[is.na(location.info)] <- 0
     location.info <- cbind(location.info, dt.sub[1, metadata])
     
     location.info <- location.info %>%
