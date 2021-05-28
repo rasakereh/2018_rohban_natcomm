@@ -7,6 +7,7 @@ library(readr)
 library(doParallel)
 library(rdist)
 library(infotheo)
+library(kit)
 
 dt.saved <- F
 dt.sub.saved <- F
