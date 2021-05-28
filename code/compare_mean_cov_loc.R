@@ -20,8 +20,8 @@ library(ggplot2)
 source("moa_evaluations.R")
 
 enrichment.based.classification <- FALSE
-k.snf <- 7     # neighborhood size in SNF
-t <- 10
+k.snf <- 19     # neighborhood size in SNF
+t <- 20
 k <- 1:10      # k top hits are used for classification
 genetic <- (p == "genetic")
 not.same.batch <- !genetic
@@ -96,14 +96,14 @@ cr.cov[is.na(cr.cov)] <- 0
 af.1 <- SNFtool::affinityMatrix(Diff = 1 - cr.mean, K = k.snf, sigma = sigma.mean)
 af.2 <- SNFtool::affinityMatrix(Diff = 1 - cr.mad, K = k.snf, sigma = sigma.mad)
 af.3 <- SNFtool::affinityMatrix(Diff = 1 - cr.cov, K = k.snf, sigma = sigma.cov)
-af.snf <- SNFtool::SNF(list(af.1, af.2, af.3), K = k.snf, t = round(3/2 * t))
+af.snf <- SNFtool::SNF(list(af.1, af.2, af.3), K = k.snf, t = round(3/2 * t), auto_stop=T)
 rownames(af.snf) <- rownames(af.1)
 colnames(af.snf) <- colnames(af.1)
 cr.median.mad.cov <- af.snf
 
 af.1 <- SNFtool::affinityMatrix(Diff = 1 - cr.mean, K = k.snf, sigma = sigma.mean)
 af.4 <- SNFtool::affinityMatrix(Diff = 1 - cr.loc, K = k.snf, sigma = sigma.loc)
-af.snf <- SNFtool::SNF(list(af.1, af.4), K = k.snf, t = round(3/2 * t))
+af.snf <- SNFtool::SNF(list(af.1, af.4), K = k.snf, t = round(3/2 * t), auto_stop=T)
 rownames(af.snf) <- rownames(af.1)
 colnames(af.snf) <- colnames(af.1)
 cr.median.loc <- af.snf
@@ -111,7 +111,7 @@ cr.median.loc <- af.snf
 af.1 <- SNFtool::affinityMatrix(Diff = 1 - cr.mean, K = k.snf, sigma = sigma.mean)
 af.2 <- SNFtool::affinityMatrix(Diff = 1 - cr.mad, K = k.snf, sigma = sigma.mad)
 af.4 <- SNFtool::affinityMatrix(Diff = 1 - cr.loc, K = k.snf, sigma = sigma.loc)
-af.snf <- SNFtool::SNF(list(af.1, af.2, af.4), K = k.snf, t = round(3/2 * t))
+af.snf <- SNFtool::SNF(list(af.1, af.2, af.4), K = k.snf, t = round(3/2 * t), auto_stop=T)
 rownames(af.snf) <- rownames(af.1)
 colnames(af.snf) <- colnames(af.1)
 cr.median.mad.loc <- af.snf
@@ -119,7 +119,7 @@ cr.median.mad.loc <- af.snf
 af.1 <- SNFtool::affinityMatrix(Diff = 1 - cr.mean, K = k.snf, sigma = sigma.mean)
 af.3 <- SNFtool::affinityMatrix(Diff = 1 - cr.cov, K = k.snf, sigma = sigma.cov)
 af.4 <- SNFtool::affinityMatrix(Diff = 1 - cr.loc, K = k.snf, sigma = sigma.loc)
-af.snf <- SNFtool::SNF(list(af.1, af.3, af.4), K = k.snf, t = round(3/2 * t))
+af.snf <- SNFtool::SNF(list(af.1, af.3, af.4), K = k.snf, t = round(3/2 * t), auto_stop=T)
 rownames(af.snf) <- rownames(af.1)
 colnames(af.snf) <- colnames(af.1)
 cr.median.cov.loc <- af.snf
@@ -128,7 +128,7 @@ af.1 <- SNFtool::affinityMatrix(Diff = 1 - cr.mean, K = k.snf, sigma = sigma.mea
 af.2 <- SNFtool::affinityMatrix(Diff = 1 - cr.mad, K = k.snf, sigma = sigma.mad)
 af.3 <- SNFtool::affinityMatrix(Diff = 1 - cr.cov, K = k.snf, sigma = sigma.cov)
 af.4 <- SNFtool::affinityMatrix(Diff = 1 - cr.loc, K = k.snf, sigma = sigma.loc)
-af.snf <- SNFtool::SNF(list(af.1, af.2, af.3, af.4), K = k.snf, t = round(3/2 * t))
+af.snf <- SNFtool::SNF(list(af.1, af.2, af.3, af.4), K = k.snf, t = round(3/2 * t), auto_stop=T)
 rownames(af.snf) <- rownames(af.1)
 colnames(af.snf) <- colnames(af.1)
 cr.median.mad.cov.loc <- af.snf
@@ -244,7 +244,7 @@ if (enrichment.based.classification) {
     D <- rbind(D, 
                data.frame(method = "median+mad+loc. (SNF)", k = k, tp = (unlist(l.median.mad.loc))))
     D <- rbind(D, 
-               data.frame(method = "median+cov.+loc. (SNF)", k = k, tp = (unlist(l.median.cov.lov))))
+               data.frame(method = "median+cov.+loc. (SNF)", k = k, tp = (unlist(l.median.cov.loc))))
     D <- rbind(D, 
                data.frame(method = "median+mad+cov. (SNF)", k = k, tp = (unlist(l.median.mad.cov))))
     
