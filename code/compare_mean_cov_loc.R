@@ -20,8 +20,8 @@ library(ggplot2)
 source("moa_evaluations.R")
 
 enrichment.based.classification <- FALSE
-k.snf <- 19     # neighborhood size in SNF
-t <- 20
+k.snf <- 7     # neighborhood size in SNF
+t <- 10
 k <- 1:10      # k top hits are used for classification
 genetic <- (p == "genetic")
 not.same.batch <- !genetic
