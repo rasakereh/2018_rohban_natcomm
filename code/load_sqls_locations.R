@@ -12,6 +12,15 @@ library(kit)
 dt.saved <- F
 dt.sub.saved <- F
 
+df2numeric <- function(df)
+{
+  if(nrow(df) == 1)
+  {
+    return(apply(df, 2, as.numeric) %>% t() %>% as.data.frame())
+  }
+  apply(df, 2, as.numeric) %>% as.data.frame()
+}
+
 profile.plate.location <- function(pl, project.name, batch.name, n.components = 3000, rand.density = 0.1, correlation, out.path, in.path = NULL, in.type="sqlite", cores = 4, nrm.column = "Metadata_broad_sample", nrm.value = "DMSO", feat.list = NULL) {
     
   doParallel::registerDoParallel(cores = cores)
@@ -125,7 +134,8 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
       dt <- cells.sub %>%
         dplyr::inner_join(cytoplasm.sub, by = "ObjectNumber") %>%
         dplyr::inner_join(nuclei.sub, by = "ObjectNumber") %>%
-        dplyr::inner_join(image.sub, by = image_object_join_columns) 
+        dplyr::inner_join(image.sub, by = image_object_join_columns)
+	print(dim(dt))
       dt
     }
     
@@ -152,11 +162,14 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     })
     
     indices <- which(0 < cell.dists & cell.dists < threshold)
-    valid.rows <- ((indices-1) %/% cell.count) + 1
-    valid.cols <- ((indices-1) %% cell.count) + 1
+    valid.rows.all <- ((indices-1) %/% cell.count) + 1
+    valid.cols.all <- ((indices-1) %% cell.count) + 1
+    indices <- indices[valid.rows.all < valid.cols.all]
+    valid.rows <- valid.rows.all[valid.rows.all < valid.cols.all]
+    valid.cols <- valid.cols.all[valid.rows.all < valid.cols.all]
     cell.dists <- cell.dists[indices]
-    
-    diff = abs(dt.sub[valid.rows,features] - dt.sub[valid.cols,features])
+
+    diff <- abs(df2numeric(dt.sub[valid.rows,features]) - df2numeric(dt.sub[valid.cols,features]))
     
     location.info <- cor(diff, cell.dists) %>% abs() %>% t() %>% as.data.frame()
     location.info[is.na(location.info)] <- 0
@@ -171,9 +184,12 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     #   write.csv(location.info, '../location_info.csv')
     #   dt.sub.saved <<- TRUE
     # }
-    print("stepped")
     profile <- location.info
     profile <- cbind(profile, data.frame(Metadata_Plate = pl, Metadata_Well = sites))
+    print("new dim:")
+    print(dim(profile))
+    print("stepped")
+    profile
   }
   t2 <- proc.time()
   print("profiles formed")
@@ -190,8 +206,6 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
   dt <- profiles[, cov.variables]
   mn <- apply(dt, 2, function(x) mean(x, na.rm=T))
   sdv <- apply(dt, 2, function(x) sd(x, na.rm=T))
-  print("here pre normalizing, sdv is:")
-  print(sdv)
   dt.nrm <- scale(dt, center = mn, scale = sdv)
   print("normalized")
   
