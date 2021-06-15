@@ -2,6 +2,7 @@ library(dplyr)
 library(ggplot2)
 library(mixOmics)
 library(FactoMineR)
+library(nnTensor)
 library(pheatmap)
 source("moa_evaluations.R")
 

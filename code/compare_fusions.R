@@ -41,6 +41,10 @@ if (!is.null(meta.file)) {
 } else {
   metadata.df <- NULL
 }
+if (!is.null(feat.list)) {
+  feat.list <- readr::read_csv(feat.list, col_names = F)  
+  feat.list <- unname(unlist(feat.list))
+}
 
 profile.types <- c('median', 'mad', 'cov', 'location')
 
