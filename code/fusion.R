@@ -5,9 +5,10 @@ library(FactoMineR)
 library(pheatmap)
 source("moa_evaluations.R")
 
-k.snf = 19
-sigma = .5
-t = 20
+k.snf <- 7     # neighborhood size in SNF
+t <- 10
+k <- 1:10      # k top hits are used for classification
+sigma <- .5
 
 do.PCA <- function(mat, final.dim)
 {
@@ -38,7 +39,7 @@ read.and.summarize <- function(profile_dir, plate.list, feat.list, profile.type,
       x <- readr::read_csv(mean.profile)  
       if (!is.null(feat.list)) {
         x <- x %>%
-          select(matches("Metadata_"), one_of(feat.list))
+          dplyr::select(matches("Metadata_"), one_of(feat.list))
       }
     } else if (profile.type == "median") {
       pl <- str_split(fl, "_")[[1]][1]
@@ -59,7 +60,7 @@ read.and.summarize <- function(profile_dir, plate.list, feat.list, profile.type,
       
       if (!is.null(feat.list) & ! is.null(x)) {
         x <- x %>%
-          select(matches("Metadata_"), one_of(paste0(feat.list, "_median")))
+          dplyr::select(matches("Metadata_"), one_of(paste0(feat.list, "_median")))
         feat.list.s <- paste0(feat.list, "_median")
       }
     } else if (profile.type == "mad") {
@@ -81,7 +82,7 @@ read.and.summarize <- function(profile_dir, plate.list, feat.list, profile.type,
       
       if (!is.null(feat.list) & ! is.null(x)) {
         x <- x %>%
-          select(matches("Metadata_"), one_of(paste0(feat.list, "_mad")))
+          dplyr::select(matches("Metadata_"), one_of(paste0(feat.list, "_mad")))
         feat.list.s <- paste0(feat.list, "_mad")
       }
     } else if (profile.type == "location") {
@@ -103,7 +104,7 @@ read.and.summarize <- function(profile_dir, plate.list, feat.list, profile.type,
       
       if (!is.null(feat.list) & ! is.null(x)) {
         x <- x %>%
-          select(matches("Metadata_"), one_of(feat.list))
+          dplyr::select(matches("Metadata_"), one_of(feat.list))
         feat.list.s <- feat.list
       }
     }
@@ -150,7 +151,7 @@ read.and.summarize <- function(profile_dir, plate.list, feat.list, profile.type,
       variable.names <- feat.list.s
     }
     
-    profiles.nrm <- profiles.nrm %>% select(one_of(c(meta.cols, variable.names)))
+    profiles.nrm <- profiles.nrm %>% dplyr::select(one_of(c(meta.cols, variable.names)))
   }
   
   print(length(fls))
@@ -172,10 +173,10 @@ read.and.summarize <- function(profile_dir, plate.list, feat.list, profile.type,
   
   if (is.null(metadata.df)) {
     prf %<>% 
-      left_join(profiles.nrm %>% select(Metadata_broad_sample, Metadata_moa) %>% unique, by = "Metadata_broad_sample")
+      left_join(profiles.nrm %>% dplyr::select(Metadata_broad_sample, Metadata_moa) %>% unique, by = "Metadata_broad_sample")
   } else {
     prf %<>% 
-      left_join(metadata.df %>% select(Metadata_broad_sample, Metadata_moa) %>% unique, by = "Metadata_broad_sample")
+      left_join(metadata.df %>% dplyr::select(Metadata_broad_sample, Metadata_moa) %>% unique, by = "Metadata_broad_sample")
   }
   
   profiles.nrm <- prf
@@ -190,12 +191,12 @@ profiles2melt <- function(pf, profile.type)
   profiles.nrm <- Pf$data
   feats <- Pf$feats
   if (!is.null(metadata.df)) {
-    profiles.meta <- metadata.df %>% select("Metadata_broad_sample", "Metadata_moa") %>% unique
+    profiles.meta <- metadata.df %>% dplyr::select("Metadata_broad_sample", "Metadata_moa") %>% unique
   } else {
-    profiles.meta <- profiles.nrm %>% select("Metadata_broad_sample", "Metadata_moa") %>% unique
+    profiles.meta <- profiles.nrm %>% dplyr::select("Metadata_broad_sample", "Metadata_moa") %>% unique
   }
   
-  pm <- profiles.nrm %>% select(Metadata_broad_sample, Metadata_Plate_Map_Name) %>% unique 
+  pm <- profiles.nrm %>% dplyr::select(Metadata_broad_sample, Metadata_Plate_Map_Name) %>% unique 
   profiles.meta <- profiles.meta %>% left_join(pm, by = "Metadata_broad_sample")
   
   cr <- cor(profiles.nrm[, feats] %>% t)
@@ -294,17 +295,17 @@ visualize <- function(dataset, labels=rep(1, nrow(dataset)), type='dataset')
 }
 
 
-rand_gens <- c(a='runif', b='rexp', c='rnorm')
-sim.data <- generate_data(380, 1800, rand_gens)
-matrix.list <- sim.data$data
-sim.labels <- sim.data$labels
+# rand_gens <- c(a='runif', b='rexp', c='rnorm')
+# sim.data <- generate_data(380, 1800, rand_gens)
+# matrix.list <- sim.data$data
+# sim.labels <- sim.data$labels
 
 # method must be one of: pseudo-PFA, block.pls, rgcca, MFA, jNMF, iNMF, SNF
-for(method.name in c("pseudo-PFA", "MFA", "jNMF", "SNF", "rgcca")){
-  png(paste0('../../results/test/', method.name, '.png'), height=800, width=800)
-  print(method.name)
-  fused.mat <- fuse.matrices(matrix.list, method.name)
-  visualize(fused.mat, sim.labels, 'affinity')
-  dev.off()
-}
+# for(method.name in c("pseudo-PFA", "MFA", "jNMF", "SNF", "rgcca")){
+#   png(paste0('../../results/test/', method.name, '.png'), height=800, width=800)
+#   print(method.name)
+#   fused.mat <- fuse.matrices(matrix.list, method.name)
+#   visualize(fused.mat, sim.labels, 'affinity')
+#   dev.off()
+# }
 
