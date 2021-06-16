@@ -54,7 +54,6 @@ print('Loading data...')
 #   read.and.summarize(profile_dir, plate.list, feat.list, profile.type, metadata.df)
 # })
 
-# saveRDS(whole.data, 'wholedata.rds')
 whole.data <- readRDS('wholedata.rds')
 
 all.feats <- lapply(whole.data, function(dataset) {dataset$feats})
@@ -71,6 +70,8 @@ whole.data <- lapply(seq_along(whole.data), function(wholedata, name, index){
   }
   dataset
 }, wholedata=whole.data, name=names(whole.data))
+
+saveRDS(whole.data, 'wholedata.rds')
 
 fusion.methods <- c("pseudo-PFA", "MFA", "jNMF", "SNF", "rgcca")
 
