@@ -59,16 +59,12 @@ whole.data <- readRDS('wholedata.rds')
 
 feats <- whole.data[[1]]$feats
 meta_feats <- whole.data[[1]]$data %>% colnames %>% setdiff(feats)
-print(meta_feats)
-print(feats)
-print(length(whole.data))
-print(class(whole.data))
-metadata.cols <- lapply(whole.data, function(dataset) dataset[,meta_feats])
+metadata.cols <- lapply(whole.data, function(dataset) dataset$data[,meta_feats])
 sample.names <- metadata.cols[[1]] %>% dplyr::select(Metadata_broad_sample)
 
 print('Imputing missing data...')
 whole.data <- lapply(whole.data, function(dataset){
-  dataset <- dataset[,feats]
+  dataset <- dataset$data[,feats]
   for(i in 1:ncol(dataset)){
     dataset[is.na(dataset[,i]), i] <- mean(dataset[,i], na.rm = TRUE)
   }
