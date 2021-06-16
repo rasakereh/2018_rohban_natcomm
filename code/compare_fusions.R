@@ -74,33 +74,33 @@ whole.data <- lapply(seq_along(whole.data), function(wholedata, name, index){
 
 names(whole.data) <- profile.types
 
-fusion.methods <- c("pseudo-PFA", "MFA", "jNMF", "SNF", "rgcca")
+# fusion.methods <- c("pseudo-PFA", "MFA", "jNMF", "SNF", "rgcca")
 
-print('Fusing median, mad, cov., and loc.')
-affinities.loc <- lapply(fusion.methods, function(fusion.method){
-  print(paste("Fusing datasets using", fusion.method))
-  affinity.matrix <- fuse.matrices(whole.data, fusion.method)
-  rownames(affinity.matrix) <- sample.names
-  colnames(affinity.matrix) <- sample.names
-  affinity.matrix
-})
-names(affinities.loc) <- paste('median+mad+cov.+loc. using', fusion.methods)
+# print('Fusing median, mad, cov., and loc.')
+# affinities.loc <- lapply(fusion.methods, function(fusion.method){
+#   print(paste("Fusing datasets using", fusion.method))
+#   affinity.matrix <- fuse.matrices(whole.data, fusion.method)
+#   rownames(affinity.matrix) <- sample.names
+#   colnames(affinity.matrix) <- sample.names
+#   affinity.matrix
+# })
+# names(affinities.loc) <- paste('median+mad+cov.+loc. using', fusion.methods)
 
-print('Fusing median, mad and cov.')
-location.index <- which(profile.types == 'location')
-affinities.no.loc <- lapply(fusion.methods, function(fusion.method){
-  print(paste("Fusing datasets using", fusion.method))
-  affinity.matrix <- fuse.matrices(whole.data[-location.index], fusion.method)
-  rownames(affinity.matrix) <- sample.names
-  colnames(affinity.matrix) <- sample.names
-  affinity.matrix
-})
-names(affinities.no.loc) <- paste('median+mad+cov. using', fusion.methods)
+# print('Fusing median, mad and cov.')
+# location.index <- which(profile.types == 'location')
+# affinities.no.loc <- lapply(fusion.methods, function(fusion.method){
+#   print(paste("Fusing datasets using", fusion.method))
+#   affinity.matrix <- fuse.matrices(whole.data[-location.index], fusion.method)
+#   rownames(affinity.matrix) <- sample.names
+#   colnames(affinity.matrix) <- sample.names
+#   affinity.matrix
+# })
+# names(affinities.no.loc) <- paste('median+mad+cov. using', fusion.methods)
 
-affinities <- c(affinities.loc, affinities.no.loc)
+# affinities <- c(affinities.loc, affinities.no.loc)
 
-saveRDS(affinities, 'affinities.rds')
-# affinities <- readRDS('affinities.rds')
+# saveRDS(affinities, 'affinities.rds')
+affinities <- readRDS('affinities.rds')
 
 metadata <- metadata.cols[[1]] %>%
   dplyr::select(Metadata_broad_sample, Metadata_moa, Metadata_Plate_Map_Name)
@@ -152,7 +152,7 @@ sm.affinities <- lapply(affinities, function(cor.mat){
 })
 
 affinity.results <- lapply(sm.affinities, function(sm.cor.mat){
-  enrichment_top_conn(sm = sm.median.mad, metadata = metadata, top.perc = top.prec, not.same.batch = not.same.batch)[3, ] %>% unlist %>% unname()
+  enrichment_top_conn(sm = sm.cor.mat, metadata = metadata, top.perc = top.prec, not.same.batch = not.same.batch)[3, ] %>% unlist %>% unname()
 })
 
 print('Generating enrichment plot ...')
