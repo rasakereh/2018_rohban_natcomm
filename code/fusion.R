@@ -222,9 +222,11 @@ fuse.matrices <- function(matrix.list, method)
   if(method == 'pseudo-PFA')
   {
     comp.cnt <- c(sapply(matrix.list, ncol), 100) %>% min
-    transformed <- lapply(matrix.list, function(mat){do.PCA(mat, comp.cnt)})
+    transformed <- lapply(matrix.list, function(mat){cat('first phase PCA... '); do.PCA(mat, comp.cnt)})
+    print('binding first phase results...')
     transformed <- do.call(cbind, transformed)
     names(transformed) <- make.names(names(transformed))
+    print('second phase PCA...')
     transformed <- do.PCA(transformed, 100)
   }else if(method == 'block.pls')
   {
