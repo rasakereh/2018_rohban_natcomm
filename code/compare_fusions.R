@@ -50,6 +50,7 @@ profile.types <- c('median', 'mad', 'cov', 'location')
 
 print('Loading data...')
 whole.data <- lapply(profile.types, function(profile.type){
+  print(paste("", profile.type))
   read.and.summarize(profile_dir, plate.list, feat.list, profile.type, metadata.df)
 })
 
