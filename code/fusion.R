@@ -259,8 +259,9 @@ fuse.matrices <- function(matrix.list, method)
   }
   if(method != 'SNP' & !is.null(transformed))
   {
-    print(names(transformed))
+    print(dimnames(transformed))
     names(transformed) <- make.names(names(transformed))
+    print(dimnames(transformed))
     cor.mat <- transformed %>% scale %>% t %>% cor %>% sim_normalize
     affinity.result <- SNFtool::affinityMatrix(Diff = 1 - cor.mat, K = k.snf, sigma = sigma)
   }
