@@ -168,17 +168,17 @@ read.and.summarize <- function(profile_dir, plate.list, feat.list, profile.type,
     group_by(Metadata_broad_sample, Metadata_mmoles_per_liter, Metadata_Plate_Map_Name) %>%
     summarise_at(.vars = variable.names, .funs = "mean.na")
   
-  prf %<>%
+  prf <- prf %>%
     arrange(abs(Metadata_mmoles_per_liter - 10)) %>%
     group_by(Metadata_broad_sample) %>%
     slice(1) %>%
     ungroup()
   
   if (is.null(metadata.df)) {
-    prf %<>% 
+    prf <- prf %>% 
       left_join(profiles.nrm %>% dplyr::select(Metadata_broad_sample, Metadata_moa) %>% unique, by = "Metadata_broad_sample")
   } else {
-    prf %<>% 
+    prf <- prf %>% 
       left_join(metadata.df %>% dplyr::select(Metadata_broad_sample, Metadata_moa) %>% unique, by = "Metadata_broad_sample")
   }
   
