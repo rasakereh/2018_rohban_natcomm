@@ -89,7 +89,7 @@ print('Fusing median, mad and cov.')
 location.index <- which(profile.types == 'location')
 affinities.no.loc <- lapply(fusion.methods[-location.index], function(fusion.method){
   print(paste("Fusing datasets using", fusion.method))
-  affinity.matrix <- fuse.matrices(whole.data, method.name)
+  affinity.matrix <- fuse.matrices(whole.data, fusion.method)
   rownames(affinity.matrix) <- sample.names
   colnames(affinity.matrix) <- sample.names
 })
