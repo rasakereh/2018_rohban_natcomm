@@ -80,6 +80,7 @@ affinities.loc <- lapply(fusion.methods, function(fusion.method){
   affinity.matrix <- fuse.matrices(whole.data, fusion.method)
   print(dim(affinity.matrix))
   print(length(sample.names))
+  print(sample.names)
   rownames(affinity.matrix) <- sample.names
   colnames(affinity.matrix) <- sample.names
 })
