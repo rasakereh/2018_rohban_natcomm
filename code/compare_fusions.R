@@ -69,7 +69,6 @@ whole.data <- lapply(seq_along(whole.data), function(wholedata, name, index){
   for(i in 1:ncol(dataset)){
     dataset[is.na(dataset[,i]), i] <- mean(dataset[,i], na.rm = TRUE)
   }
-  names(dataset) <- make.names(names(dataset))
   dataset
 }, wholedata=whole.data, name=names(whole.data))
 

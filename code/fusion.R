@@ -224,6 +224,7 @@ fuse.matrices <- function(matrix.list, method)
     comp.cnt <- c(sapply(matrix.list, ncol), 100) %>% min
     transformed <- lapply(matrix.list, function(mat){do.PCA(mat, comp.cnt)})
     transformed <- do.call(cbind, transformed)
+    names(transformed) <- make.names(names(transformed))
     transformed <- do.PCA(transformed, 100)
   }else if(method == 'block.pls')
   {
