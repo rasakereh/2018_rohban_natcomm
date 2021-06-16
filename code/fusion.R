@@ -242,10 +242,10 @@ fuse.matrices <- function(matrix.list, method)
     transformed <- transformed$global.pca$ind$coord
   }else if(method == 'jNMF')
   {
-    transformed <- nnTensor::jNMF(matrix.list, J=min(100, nrow(matrix.list[[1]])-1))$W
+    transformed <- nnTensor::jNMF(matrix.list, fixV=T, J=min(100, nrow(matrix.list[[1]])-1))$W
   }else if(method == 'iNMF')
   {
-    
+    transformed <- nnTensor::jNMF(matrix.list, fixV=F, J=min(100, nrow(matrix.list[[1]])-1))$W
   }else if(method == 'SNF')
   {
     affinities <- lapply(matrix.list, function(mat){
