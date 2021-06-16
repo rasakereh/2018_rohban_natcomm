@@ -50,9 +50,11 @@ profile.types <- c('median', 'mad', 'cov', 'location')
 
 print('Loading data...')
 whole.data <- lapply(profile.types, function(profile.type){
-  print(paste("", profile.type))
+  print(paste("loading", profile.type))
   read.and.summarize(profile_dir, plate.list, feat.list, profile.type, metadata.df)
 })
+
+saveRDS(whole.data, 'wholedata.rds')
 
 feats <- whole.data[[1]]$feats
 meta_feats <- whole.data[[1]] %>% colnames %>% setdiff(feats)

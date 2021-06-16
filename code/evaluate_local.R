@@ -68,7 +68,7 @@ read.and.summarize <- function(profile.type) {
   
   profiles.nrm <- foreach (fl = fls, .combine = rbind) %do% {
     if (profile.type == "cov") {
-      cov.profile = ifelse(is.null(profile_dir), paste0("../output/", fl), paste0(profile_dir, fl))
+      cov.profile = ifelse(is.null(profile_dir), paste0("../output/", fl), paste0(profile_dir, '/', fl))
       if (file.exists(cov.profile)) {
         x <- readr::read_csv(cov.profile)    
       } else {
