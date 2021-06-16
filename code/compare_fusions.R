@@ -49,12 +49,13 @@ if (!is.null(feat.list)) {
 profile.types <- c('median', 'mad', 'cov', 'location')
 
 print('Loading data...')
-whole.data <- lapply(profile.types, function(profile.type){
-  print(paste("loading", profile.type))
-  read.and.summarize(profile_dir, plate.list, feat.list, profile.type, metadata.df)
-})
+# whole.data <- lapply(profile.types, function(profile.type){
+#   print(paste("loading", profile.type))
+#   read.and.summarize(profile_dir, plate.list, feat.list, profile.type, metadata.df)
+# })
 
-saveRDS(whole.data, 'wholedata.rds')
+# saveRDS(whole.data, 'wholedata.rds')
+whole.data <- readRDS('wholedata.rds')
 
 all.feats <- lapply(whole.data, function(dataset) {dataset$feats})
 feats <- all.feats[[1]]
@@ -68,6 +69,7 @@ whole.data <- lapply(seq_along(whole.data), function(wholedata, name, index){
   for(i in 1:ncol(dataset)){
     dataset[is.na(dataset[,i]), i] <- mean(dataset[,i], na.rm = TRUE)
   }
+  names(dataset) <- make.names(names(dataset))
   dataset
 }, wholedata=whole.data, name=names(whole.data))
 
