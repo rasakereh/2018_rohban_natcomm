@@ -77,7 +77,7 @@ fusion.methods <- c("pseudo-PFA", "MFA", "jNMF", "SNF", "rgcca")
 print('Fusing median, mad, cov., and loc.')
 affinities.loc <- lapply(fusion.methods, function(fusion.method){
   print(paste("Fusing datasets using", fusion.method))
-  affinity.matrix <- fuse.matrices(matrix.list, method.name)
+  affinity.matrix <- fuse.matrices(matrix.list, fusion.method)
   rownames(affinity.matrix) <- sample.names
   colnames(affinity.matrix) <- sample.names
 })
