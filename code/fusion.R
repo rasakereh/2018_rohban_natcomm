@@ -11,6 +11,8 @@ t <- 10
 k <- 1:10      # k top hits are used for classification
 sigma <- .5
 
+mean.na <- function(x) {mean(x, na.rm = T)}
+
 do.PCA <- function(mat, final.dim)
 {
   pca.res <- prcomp(mat)
