@@ -57,8 +57,6 @@ print('Loading data...')
 # saveRDS(whole.data, 'wholedata.rds')
 whole.data <- readRDS('wholedata.rds')
 
-names(whole.data) <- profile.types
-
 all.feats <- lapply(whole.data, function(dataset) {dataset$feats})
 feats <- all.feats[[1]]
 meta_feats <- whole.data[[1]]$data %>% colnames %>% setdiff(feats)
@@ -73,6 +71,8 @@ whole.data <- lapply(seq_along(whole.data), function(wholedata, name, index){
   }
   as.matrix(dataset)
 }, wholedata=whole.data, name=names(whole.data))
+
+names(whole.data) <- profile.types
 
 fusion.methods <- c("pseudo-PFA", "MFA", "jNMF", "SNF", "rgcca")
 
