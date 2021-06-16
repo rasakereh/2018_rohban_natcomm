@@ -16,10 +16,6 @@ mean.na <- function(x) {mean(x, na.rm = T)}
 do.PCA <- function(mat, final.dim)
 {
   pca.res <- prcomp(mat)
-  cat("dim")
-  print(dim(mat))
-  cat("transformed")
-  print(dim(pca.res$x))
   transformed <- pca.res$x
   as.data.frame(transformed[,1:final.dim])
 }
