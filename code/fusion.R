@@ -228,6 +228,7 @@ fuse.matrices <- function(matrix.list, method)
     names(transformed) <- make.names(names(transformed))
     print('second phase PCA...')
     transformed <- do.PCA(transformed, 100)
+    print('second phase completed')
   }else if(method == 'block.pls')
   {
     
