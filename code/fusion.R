@@ -263,6 +263,7 @@ fuse.matrices <- function(matrix.list, method)
     cor.mat <- transformed %>% scale %>% t %>% cor %>% sim_normalize
     cat("affinity...")
     affinity.result <- SNFtool::affinityMatrix(Diff = 1 - cor.mat, K = k.snf, sigma = sigma)
+    cat("affinity calculated.")
   }
   affinity.result
 }
