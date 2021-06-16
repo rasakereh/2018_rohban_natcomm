@@ -76,28 +76,29 @@ names(whole.data) <- profile.types
 
 fusion.methods <- c("pseudo-PFA", "MFA", "jNMF", "SNF", "rgcca")
 
-print('Fusing median, mad, cov., and loc.')
-affinities.loc <- lapply(fusion.methods, function(fusion.method){
-  print(paste("Fusing datasets using", fusion.method))
-  affinity.matrix <- fuse.matrices(whole.data, fusion.method)
-  rownames(affinity.matrix) <- sample.names
-  colnames(affinity.matrix) <- sample.names
-})
-names(affinities.loc) <- paste('median+mad+cov.+loc. using', fusion.methods)
+# print('Fusing median, mad, cov., and loc.')
+# affinities.loc <- lapply(fusion.methods, function(fusion.method){
+#   print(paste("Fusing datasets using", fusion.method))
+#   affinity.matrix <- fuse.matrices(whole.data, fusion.method)
+#   rownames(affinity.matrix) <- sample.names
+#   colnames(affinity.matrix) <- sample.names
+# })
+# names(affinities.loc) <- paste('median+mad+cov.+loc. using', fusion.methods)
 
-print('Fusing median, mad and cov.')
-location.index <- which(profile.types == 'location')
-affinities.no.loc <- lapply(fusion.methods[-location.index], function(fusion.method){
-  print(paste("Fusing datasets using", fusion.method))
-  affinity.matrix <- fuse.matrices(whole.data, fusion.method)
-  rownames(affinity.matrix) <- sample.names
-  colnames(affinity.matrix) <- sample.names
-})
-names(affinities.no.loc) <- paste('median+mad+cov. using', fusion.methods)
+# print('Fusing median, mad and cov.')
+# location.index <- which(profile.types == 'location')
+# affinities.no.loc <- lapply(fusion.methods[-location.index], function(fusion.method){
+#   print(paste("Fusing datasets using", fusion.method))
+#   affinity.matrix <- fuse.matrices(whole.data, fusion.method)
+#   rownames(affinity.matrix) <- sample.names
+#   colnames(affinity.matrix) <- sample.names
+# })
+# names(affinities.no.loc) <- paste('median+mad+cov. using', fusion.methods)
 
-affinities <- c(affinities.loc, affinities.no.loc)
+# affinities <- c(affinities.loc, affinities.no.loc)
 
-saveRDS(affinities, 'affinities.rds')
+# saveRDS(affinities, 'affinities.rds')
+affinities <- readRDS('affinities.rds')
 
 metadata <- metadata.cols[[1]] %>%
   dplyr::select(Metadata_broad_sample, Metadata_moa, Metadata_Plate_Map_Name)
