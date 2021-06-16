@@ -58,7 +58,7 @@ print('Loading data...')
 whole.data <- readRDS('wholedata.rds')
 
 feats <- whole.data[[1]]$feats
-meta_feats <- whole.data[[1]] %>% colnames %>% setdiff(feats)
+meta_feats <- whole.data[[1]]$data %>% colnames %>% setdiff(feats)
 print(meta_feats)
 print(feats)
 print(length(whole.data))
