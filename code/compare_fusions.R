@@ -82,6 +82,7 @@ affinities.loc <- lapply(fusion.methods, function(fusion.method){
   affinity.matrix <- fuse.matrices(whole.data, fusion.method)
   rownames(affinity.matrix) <- sample.names
   colnames(affinity.matrix) <- sample.names
+  affinity.matrix
 })
 names(affinities.loc) <- paste('median+mad+cov.+loc. using', fusion.methods)
 
@@ -92,6 +93,7 @@ affinities.no.loc <- lapply(fusion.methods, function(fusion.method){
   affinity.matrix <- fuse.matrices(whole.data[-location.index], fusion.method)
   rownames(affinity.matrix) <- sample.names
   colnames(affinity.matrix) <- sample.names
+  affinity.matrix
 })
 names(affinities.no.loc) <- paste('median+mad+cov. using', fusion.methods)
 
