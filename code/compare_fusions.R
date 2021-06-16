@@ -61,7 +61,7 @@ all.feats <- lapply(whole.data, function(dataset) {dataset$feats})
 feats <- all.feats[[1]]
 meta_feats <- whole.data[[1]]$data %>% colnames %>% setdiff(feats)
 metadata.cols <- lapply(whole.data, function(dataset) dataset$data[,meta_feats])
-sample.names <- metadata.cols[[1]] %>% dplyr::select(Metadata_broad_sample) %>% unique()
+sample.names <- metadata.cols[[1]] %>% dplyr::select(Metadata_broad_sample)
 
 print('Imputing missing data...')
 whole.data <- lapply(seq_along(whole.data), function(wholedata, name, index){
