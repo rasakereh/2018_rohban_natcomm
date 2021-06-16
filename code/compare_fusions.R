@@ -59,6 +59,9 @@ whole.data <- readRDS('wholedata.rds')
 
 feats <- whole.data[[1]]$feats
 meta_feats <- whole.data[[1]] %>% colnames %>% setdiff(feats)
+print(meta_feats)
+print(length(whole.data))
+print(class(whole.data))
 metadata.cols <- lapply(whole.data, function(dataset) dataset[,meta_feats])
 sample.names <- metadata.cols[[1]] %>% dplyr::select(Metadata_broad_sample)
 
