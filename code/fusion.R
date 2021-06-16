@@ -223,7 +223,6 @@ fuse.matrices <- function(matrix.list, method)
   {
     comp.cnt <- c(sapply(matrix.list, ncol), 100) %>% min
     transformed <- lapply(matrix.list, function(mat){cat('first phase PCA... '); do.PCA(mat, comp.cnt)})
-    print('binding first phase results...')
     transformed <- do.call(cbind, transformed)
     transformed <- do.PCA(transformed, 100)
   }else if(method == 'block.pls')
@@ -260,6 +259,7 @@ fuse.matrices <- function(matrix.list, method)
   }
   if(method != 'SNP' & !is.null(transformed))
   {
+    print(names(transformed))
     names(transformed) <- make.names(names(transformed))
     cor.mat <- transformed %>% scale %>% t %>% cor %>% sim_normalize
     affinity.result <- SNFtool::affinityMatrix(Diff = 1 - cor.mat, K = k.snf, sigma = sigma)
