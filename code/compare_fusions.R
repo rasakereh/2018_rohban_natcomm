@@ -69,7 +69,7 @@ whole.data <- lapply(seq_along(whole.data), function(wholedata, name, index){
   for(i in 1:ncol(dataset)){
     dataset[is.na(dataset[,i]), i] <- mean(dataset[,i], na.rm = TRUE)
   }
-  dataset
+  as.matrix(dataset)
 }, wholedata=whole.data, name=names(whole.data))
 
 fusion.methods <- c("pseudo-PFA", "MFA", "jNMF", "SNF", "rgcca")
@@ -78,9 +78,6 @@ print('Fusing median, mad, cov., and loc.')
 affinities.loc <- lapply(fusion.methods, function(fusion.method){
   print(paste("Fusing datasets using", fusion.method))
   affinity.matrix <- fuse.matrices(whole.data, fusion.method)
-  print(dim(affinity.matrix))
-  print(length(sample.names))
-  print(sample.names)
   rownames(affinity.matrix) <- sample.names
   colnames(affinity.matrix) <- sample.names
 })
@@ -97,6 +94,8 @@ affinities.no.loc <- lapply(fusion.methods[-location.index], function(fusion.met
 names(affinities.no.loc) <- paste('median+mad+cov. using', fusion.methods)
 
 affinities <- c(affinities.loc, affinities.no.loc)
+
+saveRDS(affinities, 'affinities.rds')
 
 metadata <- metadata.cols[[1]] %>%
   dplyr::select(Metadata_broad_sample, Metadata_moa, Metadata_Plate_Map_Name)
