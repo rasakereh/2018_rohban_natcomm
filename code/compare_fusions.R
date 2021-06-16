@@ -61,7 +61,7 @@ all.feats <- lapply(whole.data, function(dataset) {dataset$feats})
 feats <- all.feats[[1]]
 meta_feats <- whole.data[[1]]$data %>% colnames %>% setdiff(feats)
 metadata.cols <- lapply(whole.data, function(dataset) dataset$data[,meta_feats])
-sample.names <- metadata.cols[[1]] %>% dplyr::select(Metadata_broad_sample)
+sample.names <- metadata.cols[[1]] %>% dplyr::select(Metadata_broad_sample) %>% unique()
 
 print('Imputing missing data...')
 whole.data <- lapply(seq_along(whole.data), function(wholedata, name, index){
@@ -78,6 +78,8 @@ print('Fusing median, mad, cov., and loc.')
 affinities.loc <- lapply(fusion.methods, function(fusion.method){
   print(paste("Fusing datasets using", fusion.method))
   affinity.matrix <- fuse.matrices(whole.data, fusion.method)
+  print(dim(affinity.matrix))
+  print(length(sample.names))
   rownames(affinity.matrix) <- sample.names
   colnames(affinity.matrix) <- sample.names
 })

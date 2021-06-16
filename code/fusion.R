@@ -222,7 +222,7 @@ fuse.matrices <- function(matrix.list, method)
   if(method == 'pseudo-PFA')
   {
     comp.cnt <- c(sapply(matrix.list, ncol), 100) %>% min
-    transformed <- lapply(matrix.list, function(mat){cat('first phase PCA... '); do.PCA(mat, comp.cnt)})
+    transformed <- lapply(matrix.list, function(mat){do.PCA(mat, comp.cnt)})
     transformed <- do.call(cbind, transformed)
     transformed <- do.PCA(transformed, 100)
   }else if(method == 'block.pls')
@@ -259,11 +259,8 @@ fuse.matrices <- function(matrix.list, method)
   }
   if(method != 'SNP' & !is.null(transformed))
   {
-    cat("preparing cor.mat...")
     cor.mat <- transformed %>% scale %>% t %>% cor %>% sim_normalize
-    cat("affinity...")
     affinity.result <- SNFtool::affinityMatrix(Diff = 1 - cor.mat, K = k.snf, sigma = sigma)
-    cat("affinity calculated.")
   }
   affinity.result
 }
