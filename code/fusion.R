@@ -225,7 +225,7 @@ fuse.matrices <- function(matrix.list, method)
   # method must be one of: pseudo-PFA, block.pls, rgcca, MFA, jNMF, iNMF, SNF
   if(method == 'pseudo-PFA')
   {
-    comp.cnt <- max(nrow(matrix.list[[1]]) %/% (length(matrix.list)-1), 100)
+    comp.cnt <- c(sapply(matrix.list, ncol), 100) %>% min
     transformed <- lapply(matrix.list, function(mat){do.PCA(mat, comp.cnt)})
     transformed <- do.call(cbind, transformed)
     transformed <- do.PCA(transformed, 100)
