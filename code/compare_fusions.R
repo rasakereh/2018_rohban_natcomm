@@ -60,6 +60,7 @@ whole.data <- readRDS('wholedata.rds')
 feats <- whole.data[[1]]$feats
 meta_feats <- whole.data[[1]] %>% colnames %>% setdiff(feats)
 print(meta_feats)
+print(feats)
 print(length(whole.data))
 print(class(whole.data))
 metadata.cols <- lapply(whole.data, function(dataset) dataset[,meta_feats])
