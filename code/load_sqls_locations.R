@@ -96,7 +96,7 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
   profiles <- NULL
   
   # profiles <- foreach (sites = sites.all, .combine = rbind) %do% {
-  for(sites in sites.all[80:length(sites.all)])
+  for(sites in sites.all[105:length(sites.all)])
   {
     
     #saveRDS(sites, paste0("../tmp_trad/", sites, ".rds"))  
@@ -163,22 +163,29 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     
     pos.features <- c('Cells_AreaShape_Center_X', 'Cells_AreaShape_Center_Y')
     features <- setdiff(all.variables, pos.features)
-    cell.dists <- pdist(dt.sub[pos.features], metric='euclidean')
-    threshold <- cell.dists %>% apply(2, function(col.data){
-      if(length(col.data[col.data!=0]) == 0) return(0)
-      nth.index = (col.data[col.data!=0] %>% topn(nth.topn, decreasing=F))[nth.topn]
-      col.data[col.data!=0][nth.index]
-    })
     
-    indices <- which(0 < cell.dists & cell.dists < threshold)
-    valid.rows.all <- ((indices-1) %/% cell.count) + 1
-    valid.cols.all <- ((indices-1) %% cell.count) + 1
-    indices <- indices[valid.rows.all < valid.cols.all]
-    valid.rows <- valid.rows.all[valid.rows.all < valid.cols.all]
-    valid.cols <- valid.cols.all[valid.rows.all < valid.cols.all]
-    cell.dists <- cell.dists[indices]
-
-    diff <- abs(df2numeric(dt.sub[valid.rows,features]) - df2numeric(dt.sub[valid.cols,features]))
+    if(cell.count < 2)
+    {
+      diff <- data.frame(matrix(0, ncol=length(features)))
+      colnames(df.test) <- features
+    }else{
+      cell.dists <- pdist(dt.sub[pos.features], metric='euclidean')
+      threshold <- cell.dists %>% apply(2, function(col.data){
+        if(length(col.data[col.data!=0]) == 0) return(0)
+        nth.index = (col.data[col.data!=0] %>% topn(nth.topn, decreasing=F))[nth.topn]
+        col.data[col.data!=0][nth.index]
+      })
+      
+      indices <- which(0 < cell.dists & cell.dists <= threshold)
+      valid.rows.all <- ((indices-1) %/% cell.count) + 1
+      valid.cols.all <- ((indices-1) %% cell.count) + 1
+      indices <- indices[valid.rows.all < valid.cols.all]
+      valid.rows <- valid.rows.all[valid.rows.all < valid.cols.all]
+      valid.cols <- valid.cols.all[valid.rows.all < valid.cols.all]
+      cell.dists <- cell.dists[indices]
+  
+      diff <- abs(df2numeric(dt.sub[valid.rows,features]) - df2numeric(dt.sub[valid.cols,features]))
+    }
     
     location.info <- cor(diff, cell.dists) %>% abs() %>% t() %>% as.data.frame()
     location.info[is.na(location.info)] <- 0
