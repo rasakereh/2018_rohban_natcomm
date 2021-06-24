@@ -95,9 +95,8 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
   
   profiles <- NULL
   
-  # profiles <- foreach (sites = sites.all, .combine = rbind) %do% {
-  for(sites in sites.all[105:length(sites.all)])
-  {
+  profiles <- foreach (sites = sites.all, .combine = rbind) %do% {
+  # for(sites in sites.all[105:length(sites.all)]){
     
     #saveRDS(sites, paste0("../tmp_trad/", sites, ".rds"))  
     
