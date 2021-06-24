@@ -93,7 +93,11 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
   
   t <- proc.time()
   
-  profiles <- foreach (sites = sites.all, .combine = rbind) %do% {
+  profiles <- NULL
+  
+  # profiles <- foreach (sites = sites.all, .combine = rbind) %do% {
+  for(sites in sites.all)
+  {
     
     #saveRDS(sites, paste0("../tmp_trad/", sites, ".rds"))  
     
@@ -195,6 +199,12 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     print(dim(profile))
     print("stepped")
     profile
+    if(is.null(profiles))
+    {
+      profiles <- profile
+    }else{
+      profiles <- rbind(profiles, profile)
+    }
   }
   t2 <- proc.time()
   print("profiles formed")
