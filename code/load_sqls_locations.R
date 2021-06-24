@@ -145,12 +145,12 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     all.variables <- all.variables[which(str_detect(all.variables, "Cells") | str_detect(all.variables, "Cytoplasm") | str_detect(all.variables, "Nuclei"))]
     metadata <- setdiff(colnames(dt.sub), all.variables)
     
-    if(dt.sub[1,"Image_Metadata_Well"] %in% bug.detected)
-    {
-      print('bad well')
-      print(dt.sub[1,"Image_Metadata_Well"])
-      write.csv(dt.sub, paste0('../', dt.sub[1,"Image_Metadata_Well"], '.csv'))
-    }
+    # if(dt.sub[1,"Image_Metadata_Well"] %in% bug.detected)
+    # {
+    #   print('bad well')
+    #   print(dt.sub[1,"Image_Metadata_Well"])
+    #   write.csv(dt.sub, paste0('../', dt.sub[1,"Image_Metadata_Well"], '.csv'))
+    # }
    
     cell.count = nrow(dt.sub)
     nth.topn = as.integer(cell.count**.5)
