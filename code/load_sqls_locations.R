@@ -201,7 +201,8 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     # }
     profile <- location.info
     profile <- cbind(profile, data.frame(Metadata_Plate = pl, Metadata_Well = sites))
-    print("new dim:")
+    print(dt.sub[1,"Image_Metadata_Well"])
+    cat("new dim:")
     print(dim(profile))
     print("stepped")
     profile
