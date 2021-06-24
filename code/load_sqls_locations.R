@@ -205,19 +205,19 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     print(dim(profile))
     print("stepped")
     profile
-    if(is.null(profiles))
-    {
-      profiles <- profile
-    }else{
-      if(ncol(profiles) != ncol(profile))
-      {
-        print('bad well')
-        print(dt.sub[1,"Image_Metadata_Well"])
-        write.csv(dt.sub, paste0('../', dt.sub[1,"Image_Metadata_Well"], '.csv'))
-        write.csv(profile, paste0('../', dt.sub[1,"Image_Metadata_Well"], '-prof', '.csv'))
-      }
-      profiles <- rbind(profiles, profile)
-    }
+    # if(is.null(profiles))
+    # {
+    #   profiles <- profile
+    # }else{
+    #   if(ncol(profiles) != ncol(profile))
+    #   {
+    #     print('bad well')
+    #     print(dt.sub[1,"Image_Metadata_Well"])
+    #     write.csv(dt.sub, paste0('../', dt.sub[1,"Image_Metadata_Well"], '.csv'))
+    #     write.csv(profile, paste0('../', dt.sub[1,"Image_Metadata_Well"], '-prof', '.csv'))
+    #   }
+    #   profiles <- rbind(profiles, profile)
+    # }
   }
   t2 <- proc.time()
   print("profiles formed")
