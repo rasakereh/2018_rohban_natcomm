@@ -165,8 +165,8 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     
     if(cell.count < 2)
     {
-      diff <- data.frame(matrix(0, ncol=length(features)))
-      colnames(diff) <- features
+      location.info <- data.frame(matrix(0, ncol=length(features)))
+      colnames(location.info) <- features
     }else{
       cell.dists <- pdist(dt.sub[pos.features], metric='euclidean')
       threshold <- cell.dists %>% apply(2, function(col.data){
@@ -184,10 +184,10 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
       cell.dists <- cell.dists[indices]
   
       diff <- abs(df2numeric(dt.sub[valid.rows,features]) - df2numeric(dt.sub[valid.cols,features]))
+      location.info <- cor(diff, cell.dists) %>% abs() %>% t() %>% as.data.frame()
+      location.info[is.na(location.info)] <- 0
     }
     
-    location.info <- cor(diff, cell.dists) %>% abs() %>% t() %>% as.data.frame()
-    location.info[is.na(location.info)] <- 0
     location.info <- cbind(location.info, dt.sub[1, metadata])
     
     location.info <- location.info %>%
