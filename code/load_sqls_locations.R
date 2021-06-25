@@ -166,7 +166,7 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     if(cell.count < 2)
     {
       diff <- data.frame(matrix(0, ncol=length(features)))
-      colnames(df.test) <- features
+      colnames(diff) <- features
     }else{
       cell.dists <- pdist(dt.sub[pos.features], metric='euclidean')
       threshold <- cell.dists %>% apply(2, function(col.data){
