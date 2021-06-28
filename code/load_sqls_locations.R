@@ -199,7 +199,7 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
       cell.dists <- cell.dists[indices]
   
       diff <- abs(df2numeric(dt.sub[valid.rows,features]) - df2numeric(dt.sub[valid.cols,features]))
-      location.info <- g.kernel.cor(cell.dists, diff)
+      location.info <- g.kernel.cor(diff, cell.dists)
     }
     
     location.info <- cbind(location.info, dt.sub[1, metadata])
