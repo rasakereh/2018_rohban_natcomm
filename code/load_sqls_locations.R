@@ -11,6 +11,21 @@ library(kit)
 
 bug.detected <- c("e05", "e06", "e07", "e08", "e09", "e10", "e11", "e12", "e13", "e14", "e15", "e16", "e17", "e18", "e19","e20", "e21", "e22", "e23", "e24", "f01", "f02", "f03", "f04", "f05", "f06", "f07", "f08", "f09", "f10","f11", "f12", "f13", "f14", "f15", "f16", "f17", "f18", "f19", "f20", "f21", "f22", "f23", "f24", "g01","g02", "g03", "g04", "g05", "g06", "g07", "g08", "g09", "g10", "g11", "g12", "g13", "g14", "g15", "g16","g17", "g18", "g19", "g20", "g21", "g22", "g23", "g24", "h01", "h02", "h03", "h04", "h05", "h06", "h07","h08", "h09", "h10", "h11", "h12", "h13", "h14", "h15", "h16", "h17", "h18", "h19", "h20", "h21", "h22","h23", "h24", "i01", "i02", "i03", "i04", "i05", "i06", "i07")
 
+g.kernel.cor <- function(mat1, mat2, use.kernel=T)
+{
+  if(use.kernel)
+  {
+    g.sigma <- 10
+    g.m1 <- exp(-mat1**2/2/g.sigma/g.sigma)
+    g.m2 <- exp(-mat2**2/2/g.sigma/g.sigma)
+    res <- cor(g.m1, g.m2) %>% abs() %>% t() %>% as.data.frame()
+  }else{
+    res <- cor(mat1, mat2) %>% abs() %>% t() %>% as.data.frame()
+  }
+  res[is.na(res)] <- 0
+  res
+}
+
 df2numeric <- function(df)
 {
   if(nrow(df) == 1)
@@ -184,8 +199,7 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
       cell.dists <- cell.dists[indices]
   
       diff <- abs(df2numeric(dt.sub[valid.rows,features]) - df2numeric(dt.sub[valid.cols,features]))
-      location.info <- cor(diff, cell.dists) %>% abs() %>% t() %>% as.data.frame()
-      location.info[is.na(location.info)] <- 0
+      location.info <- g.kernel.cor(cell.dists, diff)
     }
     
     location.info <- cbind(location.info, dt.sub[1, metadata])
