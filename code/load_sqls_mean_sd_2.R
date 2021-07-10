@@ -162,18 +162,18 @@ profile.plate.traditional.2 <- function(pl, project.name, batch.name, operation,
     dplyr::filter((!!rlang::sym(nrm.column)) == nrm.value) %>%
     select(Metadata_Plate, Metadata_Well)
   
-  # samples.nrm <- profiles %>% 
-  #   mutate(Metadata_Plate = as.character(Metadata_Plate)) %>%
-  #   semi_join(dmso.ids %>%
-  #               mutate(Metadata_Plate = as.character(Metadata_Plate)), 
-  #             by = c("Metadata_Plate", "Metadata_Well"))
-  # 
-  # mn <- apply(samples.nrm %>% select(one_of(cov.variables)), 2, function(x) mean(x, na.rm = T))
-  # sdv <- apply(samples.nrm %>% select(one_of(cov.variables)), 2, function(x) sd(x, na.rm = T))
+  samples.nrm <- profiles %>%
+    mutate(Metadata_Plate = as.character(Metadata_Plate)) %>%
+    semi_join(dmso.ids %>%
+                mutate(Metadata_Plate = as.character(Metadata_Plate)),
+              by = c("Metadata_Plate", "Metadata_Well"))
+
+  mn <- apply(samples.nrm %>% select(one_of(cov.variables)), 2, function(x) mean(x, na.rm = T))
+  sdv <- apply(samples.nrm %>% select(one_of(cov.variables)), 2, function(x) sd(x, na.rm = T))
   
   dt <- profiles[, cov.variables]
-  mn <- apply(dt, 2, function(x) mean(x, na.rm=T))
-  sdv <- apply(dt, 2, function(x) sd(x, na.rm=T))
+  # mn <- apply(dt, 2, function(x) mean(x, na.rm=T))
+  # sdv <- apply(dt, 2, function(x) sd(x, na.rm=T))
   
   dt.nrm <- scale(dt, center = mn, scale = sdv)
   

@@ -220,19 +220,6 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     print(dim(profile))
     print("stepped")
     profile
-    # if(is.null(profiles))
-    # {
-    #   profiles <- profile
-    # }else{
-    #   if(ncol(profiles) != ncol(profile))
-    #   {
-    #     print('bad well')
-    #     print(dt.sub[1,"Image_Metadata_Well"])
-    #     write.csv(dt.sub, paste0('../', dt.sub[1,"Image_Metadata_Well"], '.csv'))
-    #     write.csv(profile, paste0('../', dt.sub[1,"Image_Metadata_Well"], '-prof', '.csv'))
-    #   }
-    #   profiles <- rbind(profiles, profile)
-    # }
   }
   t2 <- proc.time()
   print("profiles formed")
@@ -246,11 +233,11 @@ profile.plate.location <- function(pl, project.name, batch.name, n.components = 
     dplyr::filter((!!rlang::sym(nrm.column)) == nrm.value) %>%
     select(Metadata_Plate, Metadata_Well)
   
-  dt <- profiles[, cov.variables]
-  mn <- apply(dt, 2, function(x) mean(x, na.rm=T))
-  sdv <- apply(dt, 2, function(x) sd(x, na.rm=T))
-  dt.nrm <- scale(dt, center = mn, scale = sdv)
-  print("normalized")
+  dt.nrm <- profiles[, cov.variables]
+  # mn <- apply(dt, 2, function(x) mean(x, na.rm=T))
+  # sdv <- apply(dt, 2, function(x) sd(x, na.rm=T))
+  # dt.nrm <- scale(dt, center = mn, scale = sdv)
+  # print("normalized")
   
   profiles.nrm <- cbind(dt.nrm, profiles[, cov.metadata])
   
