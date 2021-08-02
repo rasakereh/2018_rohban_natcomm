@@ -95,7 +95,7 @@ cr.cov[is.na(cr.cov)] <- 0
 
 af.1 <- SNFtool::affinityMatrix(Diff = 1 - cr.mean, K = k.snf, sigma = sigma.mean)
 af.2 <- SNFtool::affinityMatrix(Diff = 1 - cr.mad, K = k.snf, sigma = sigma.mad)
-af.snf <- SNFtool::SNF(list(af.1, af.2), K = k.snf, t = round(3/2 * t), auto_stop=T)
+af.snf <- SNFtool::SNF(list(af.1, af.2), K = k.snf, t = round(3/2 * t))
 rownames(af.snf) <- rownames(af.1)
 colnames(af.snf) <- colnames(af.1)
 cr.median.mad <- af.snf
@@ -103,14 +103,14 @@ cr.median.mad <- af.snf
 af.1 <- SNFtool::affinityMatrix(Diff = 1 - cr.mean, K = k.snf, sigma = sigma.mean)
 af.2 <- SNFtool::affinityMatrix(Diff = 1 - cr.mad, K = k.snf, sigma = sigma.mad)
 af.3 <- SNFtool::affinityMatrix(Diff = 1 - cr.cov, K = k.snf, sigma = sigma.cov)
-af.snf <- SNFtool::SNF(list(af.1, af.2, af.3), K = k.snf, t = round(3/2 * t), auto_stop=T)
+af.snf <- SNFtool::SNF(list(af.1, af.2, af.3), K = k.snf, t = round(3/2 * t))
 rownames(af.snf) <- rownames(af.1)
 colnames(af.snf) <- colnames(af.1)
 cr.median.mad.cov <- af.snf
 
 af.1 <- SNFtool::affinityMatrix(Diff = 1 - cr.mean, K = k.snf, sigma = sigma.mean)
 af.4 <- SNFtool::affinityMatrix(Diff = 1 - cr.loc, K = k.snf, sigma = sigma.loc)
-af.snf <- SNFtool::SNF(list(af.1, af.4), K = k.snf, t = round(3/2 * t), auto_stop=T)
+af.snf <- SNFtool::SNF(list(af.1, af.4), K = k.snf, t = round(3/2 * t))
 rownames(af.snf) <- rownames(af.1)
 colnames(af.snf) <- colnames(af.1)
 cr.median.loc <- af.snf
@@ -118,7 +118,7 @@ cr.median.loc <- af.snf
 af.1 <- SNFtool::affinityMatrix(Diff = 1 - cr.mean, K = k.snf, sigma = sigma.mean)
 af.2 <- SNFtool::affinityMatrix(Diff = 1 - cr.mad, K = k.snf, sigma = sigma.mad)
 af.4 <- SNFtool::affinityMatrix(Diff = 1 - cr.loc, K = k.snf, sigma = sigma.loc)
-af.snf <- SNFtool::SNF(list(af.1, af.2, af.4), K = k.snf, t = round(3/2 * t), auto_stop=T)
+af.snf <- SNFtool::SNF(list(af.1, af.2, af.4), K = k.snf, t = round(3/2 * t))
 rownames(af.snf) <- rownames(af.1)
 colnames(af.snf) <- colnames(af.1)
 cr.median.mad.loc <- af.snf
@@ -126,7 +126,7 @@ cr.median.mad.loc <- af.snf
 af.1 <- SNFtool::affinityMatrix(Diff = 1 - cr.mean, K = k.snf, sigma = sigma.mean)
 af.3 <- SNFtool::affinityMatrix(Diff = 1 - cr.cov, K = k.snf, sigma = sigma.cov)
 af.4 <- SNFtool::affinityMatrix(Diff = 1 - cr.loc, K = k.snf, sigma = sigma.loc)
-af.snf <- SNFtool::SNF(list(af.1, af.3, af.4), K = k.snf, t = round(3/2 * t), auto_stop=T)
+af.snf <- SNFtool::SNF(list(af.1, af.3, af.4), K = k.snf, t = round(3/2 * t))
 rownames(af.snf) <- rownames(af.1)
 colnames(af.snf) <- colnames(af.1)
 cr.median.cov.loc <- af.snf
@@ -135,7 +135,7 @@ af.1 <- SNFtool::affinityMatrix(Diff = 1 - cr.mean, K = k.snf, sigma = sigma.mea
 af.2 <- SNFtool::affinityMatrix(Diff = 1 - cr.mad, K = k.snf, sigma = sigma.mad)
 af.3 <- SNFtool::affinityMatrix(Diff = 1 - cr.cov, K = k.snf, sigma = sigma.cov)
 af.4 <- SNFtool::affinityMatrix(Diff = 1 - cr.loc, K = k.snf, sigma = sigma.loc)
-af.snf <- SNFtool::SNF(list(af.1, af.2, af.3, af.4), K = k.snf, t = round(3/2 * t), auto_stop=T)
+af.snf <- SNFtool::SNF(list(af.1, af.2, af.3, af.4), K = k.snf, t = round(3/2 * t))
 rownames(af.snf) <- rownames(af.1)
 colnames(af.snf) <- colnames(af.1)
 cr.median.mad.cov.loc <- af.snf
@@ -144,7 +144,7 @@ af.1 <- SNFtool::affinityMatrix(Diff = 1 - cr.mean, K = k.snf, sigma = sigma.mea
 af.2 <- SNFtool::affinityMatrix(Diff = 1 - cr.mad, K = k.snf, sigma = sigma.mad)
 af.3 <- SNFtool::affinityMatrix(Diff = 1 - cr.cov, K = k.snf, sigma = sigma.cov)
 af.4 <- SNFtool::affinityMatrix(Diff = 1 - cr.loc, K = k.snf, sigma = sigma.loc)
-af.snf <- SNFtool::SNF(list(af.1, af.2, af.3, af.4), K = k.snf, t = round(3/2 * t), auto_stop = T, layer_bias = c(4, 4, 4, 1))
+af.snf <- SNFtool::SNF(list(af.1, af.2, af.3, af.4), K = k.snf, t = round(3/2 * t), layer_bias = c(4, 4, 4, 1))
 rownames(af.snf) <- rownames(af.1)
 colnames(af.snf) <- colnames(af.1)
 cr.median.mad.cov.loc.w <- af.snf

@@ -200,13 +200,13 @@ read.and.summarize <- function(profile.type) {
   if (profile.type == "location") {
     meta.cols <- setdiff(colnames(profiles.nrm), variable.names)
     
-    sdMat <- profiles.nrm %>% select(variable.names) %>% apply(2, sd)
+    sdMat <- profiles.nrm %>% select(all_of(variable.names)) %>% apply(2, sd)
     highest.sds <- sort(sdMat, index.return=T, decreasing = T)$ix
     col.count <- as.integer(.1*length(variable.names))
     new.var.names <- variable.names[highest.sds[1:col.count]]
     profiles.nrm <- cbind(
-      profiles.nrm %>% select(meta.cols),
-      (profiles.nrm %>% select(variable.names))[, highest.sds[1:col.count]]
+      profiles.nrm %>% select(all_of(meta.cols)),
+      (profiles.nrm %>% select(all_of(variable.names)))[, highest.sds[1:col.count]]
     )
     variable.names <- new.var.names
   }
