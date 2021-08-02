@@ -197,6 +197,20 @@ read.and.summarize <- function(profile.type) {
     profiles.nrm <- profiles.nrm %>% select(one_of(c(meta.cols, variable.names)))
   }
   
+  if (profile.type == "location") {
+    meta.cols <- setdiff(colnames(profiles.nrm), variable.names)
+    
+    sdMat <- profiles.nrm %>% select(variable.names) %>% apply(2, sd)
+    highest.sds <- sort(sdMat, index.return=T, decreasing = T)$ix
+    col.count <- as.integer(.1*length(variable.names))
+    profiles.nrm <- cbind(
+      profiles.nrm %>% select(meta.cols),
+      (profiles.nrm %>% select(variable.names))[, highest.sds[1:col.count]]
+    )
+    print(sdMat[highest.sds[1:10]])
+    print(sdMat[highest.sds[(length(highest.sds)-9):length(highest.sds)]])
+  }
+  
   print(length(fls))
   
   if (!"Metadata_mmoles_per_liter" %in% colnames(profiles.nrm)) {
